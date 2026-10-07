@@ -246,8 +246,6 @@ export default function GISWorkspace({
 
     source.addFeatures(features)
 
-    // Only fit the map after features
-    // have actually been loaded.
     if (
       layerId === selectedLayerId &&
       features.length > 0

@@ -10,13 +10,11 @@ from app.api.artifacts import router as artifacts_router
 from app.api.orthomosaic import router as orthomosaic_router
 from app.api.cadastral_real import router as cadastral_real_router
 
-
 app = FastAPI(
     title="ELIOS-LAND API",
     description="Land survey and orthomosaic processing backend",
     version="0.1.0",
 )
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,7 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(surveys_router)
 app.include_router(uploads_router)
 app.include_router(artifacts_router)
@@ -39,7 +36,6 @@ app.include_router(orthomosaic_router)
 app.include_router(processing_router)
 app.include_router(ingestion_router)
 app.include_router(validation_router)
-
 
 @app.get("/")
 def root():
@@ -49,7 +45,6 @@ def root():
         "status": "running",
     }
 
-
 @app.get("/health")
 def health():
     return {
@@ -57,8 +52,6 @@ def health():
         "service": "elios-land-backend",
     }
 
-
-# HELIOS-LAND cadastral comparison router
 app.include_router(cadastral_real_router)
 
 from app.api.analysis_compat import router as analysis_compat_router

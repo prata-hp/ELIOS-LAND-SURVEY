@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS cadastral_layers (
 CREATE INDEX IF NOT EXISTS idx_cadastral_layers_type
 ON cadastral_layers(layer_type);
 
-
 CREATE TABLE IF NOT EXISTS old_parcels (
     id UUID PRIMARY KEY,
     layer_id UUID NOT NULL REFERENCES cadastral_layers(id) ON DELETE CASCADE,
@@ -33,7 +32,6 @@ ON old_parcels(layer_id);
 CREATE INDEX IF NOT EXISTS idx_old_parcels_geometry
 ON old_parcels
 USING GIST(geometry);
-
 
 CREATE TABLE IF NOT EXISTS new_parcels (
     id UUID PRIMARY KEY,
@@ -54,7 +52,6 @@ ON new_parcels(layer_id);
 CREATE INDEX IF NOT EXISTS idx_new_parcels_geometry
 ON new_parcels
 USING GIST(geometry);
-
 
 CREATE TABLE IF NOT EXISTS parcel_comparisons (
     id UUID PRIMARY KEY,

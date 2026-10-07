@@ -5,9 +5,7 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-
 NODEODM_URL = "http://localhost:3000"
-
 
 def _multipart_field(boundary: str, name: str, value: str) -> bytes:
     return (
@@ -16,7 +14,6 @@ def _multipart_field(boundary: str, name: str, value: str) -> bytes:
         "\r\n"
         f"{value}\r\n"
     ).encode()
-
 
 def _multipart_file(
     boundary: str,
@@ -34,13 +31,11 @@ def _multipart_file(
 
     return header + file_path.read_bytes() + b"\r\n"
 
-
 def get_nodeodm_info() -> dict:
     url = f"{NODEODM_URL}/info"
 
     with urllib.request.urlopen(url, timeout=10) as response:
         return json.loads(response.read().decode("utf-8"))
-
 
 def create_nodeodm_task(
     image_paths: list[str],
@@ -194,7 +189,6 @@ def create_nodeodm_task(
             f"HTTP {exc.code}: {detail}"
         ) from exc
 
-
 def get_nodeodm_task_info(task_uuid: str) -> dict:
     url = f"{NODEODM_URL}/task/{task_uuid}/info"
 
@@ -205,7 +199,6 @@ def get_nodeodm_task_info(task_uuid: str) -> dict:
         return json.loads(
             response.read().decode("utf-8")
         )
-
 
 def get_nodeodm_task_output(
     task_uuid: str,
@@ -224,7 +217,6 @@ def get_nodeodm_task_output(
             "utf-8",
             errors="replace",
         )
-
 
 def download_nodeodm_all(
     task_uuid: str,
@@ -282,7 +274,6 @@ def download_nodeodm_all(
     destination.write_bytes(data)
 
     return destination
-
 
 def extract_nodeodm_products(
     archive_path: str | Path,
@@ -401,9 +392,6 @@ def extract_nodeodm_products(
                 "Entwine LAZ point-cloud tiles."
             )
 
-        # The NodeODM output is an Entwine/EPT tiled
-        # point cloud. Preserve the complete EPT tree
-        # for future point-cloud viewing and processing.
         ept_destination = (
             point_cloud_dir / "entwine_pointcloud"
         )
@@ -450,8 +438,6 @@ def extract_nodeodm_products(
                     target,
                 )
 
-    # Keep the normalized artifact path pointing
-    # at the ELIOS-LAND point-cloud directory.
     return {
         "orthomosaic": orthomosaic_destination,
         "dsm": dsm_destination,

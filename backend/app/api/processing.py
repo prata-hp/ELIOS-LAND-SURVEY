@@ -22,12 +22,10 @@ from app.services.nodeodm_service import (
     get_nodeodm_task_output,
 )
 
-
 router = APIRouter(
     prefix="/surveys",
     tags=["Processing"],
 )
-
 
 ALLOWED_JOB_TYPES = {
     "VALIDATION",
@@ -36,7 +34,6 @@ ALLOWED_JOB_TYPES = {
     "BOUNDARY",
     "COMPARISON",
 }
-
 
 def _job_response(job: ProcessingJob) -> dict:
     return {
@@ -51,14 +48,12 @@ def _job_response(job: ProcessingJob) -> dict:
         "error_message": job.error_message,
     }
 
-
 def _survey_storage_root(survey: SurveyProject) -> Path:
     return (
         Path(settings.storage_root)
         / "surveys"
         / survey.survey_code
     )
-
 
 def _find_survey_images(
     survey_id: UUID,
@@ -74,7 +69,6 @@ def _find_survey_images(
     )
 
     return list(db.scalars(statement).all())
-
 
 def _find_gcp_file(
     survey_id: UUID,
@@ -92,7 +86,6 @@ def _find_gcp_file(
     )
 
     return db.scalars(statement).first()
-
 
 def _register_artifact(
     db: Session,
@@ -150,7 +143,6 @@ def _register_artifact(
     db.add(artifact)
 
     return artifact
-
 
 def _sync_orthomosaic_job(
     job: ProcessingJob,
@@ -222,8 +214,6 @@ def _sync_orthomosaic_job(
 
         products = None
 
-        # If artifacts already exist, don't download
-        # the same large NodeODM archive again.
         orthomosaic_path = (
             processed_root
             / "orthomosaic"
@@ -273,8 +263,6 @@ def _sync_orthomosaic_job(
                 processed_root,
             )
 
-            # The ZIP is an intermediate transfer package.
-            # Remove it after successful extraction.
             try:
                 archive_path.unlink()
             except FileNotFoundError:
@@ -405,7 +393,6 @@ def _sync_orthomosaic_job(
 
     return job
 
-
 @router.post("/{survey_id}/processing")
 def create_processing_job(
     survey_id: UUID,
@@ -433,8 +420,6 @@ def create_processing_job(
             ),
         )
 
-    # Do not create duplicate active processing
-    # jobs for the same survey and job type.
     active_statement = (
         select(ProcessingJob)
         .where(
@@ -587,7 +572,6 @@ def create_processing_job(
             detail=str(exc),
         ) from exc
 
-
 @router.get("/{survey_id}/processing")
 def list_processing_jobs(
     survey_id: UUID,
@@ -654,7 +638,6 @@ def list_processing_jobs(
         _job_response(job)
         for job in synced_jobs
     ]
-
 
 @router.get("/{survey_id}/processing/{job_id}")
 def get_processing_job(

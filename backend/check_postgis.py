@@ -20,7 +20,6 @@ if not url:
     print("DATABASE_URL / DATABASE_URI / POSTGRES_URL is not configured.")
     sys.exit(2)
 
-# Normalize for direct psycopg connection if postgresql+psycopg is present
 conn_url = url.replace("postgresql+psycopg://", "postgresql://").replace("postgresql+asyncpg://", "postgresql://")
 
 print("Database URL detected.")

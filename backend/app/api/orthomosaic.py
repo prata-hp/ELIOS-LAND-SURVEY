@@ -18,7 +18,6 @@ router = APIRouter(
     tags=["Orthomosaic"],
 )
 
-
 def get_orthomosaic_artifact(
     survey_id: UUID,
     db: Session,
@@ -45,7 +44,6 @@ def get_orthomosaic_artifact(
         )
 
     return artifact
-
 
 @router.get("/info")
 def get_orthomosaic_info(
@@ -80,7 +78,6 @@ def get_orthomosaic_info(
             },
         }
 
-
 @router.get("/preview")
 def get_orthomosaic_preview(
     survey_id: UUID,
@@ -89,7 +86,7 @@ def get_orthomosaic_preview(
     artifact = get_orthomosaic_artifact(survey_id, db)
 
     with rasterio.open(artifact.storage_path) as src:
-        # Read RGB bands and downsample for browser preview.
+
         max_dimension = 1600
         scale = min(
             1.0,

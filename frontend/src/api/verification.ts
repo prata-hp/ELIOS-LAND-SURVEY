@@ -2,7 +2,6 @@ import { apiFetch } from './client'
 export const getCases = () => apiFetch('/cases')
 export const createCase = (payload: unknown) => apiFetch('/cases', {method:'POST', body:JSON.stringify(payload)})
 
-
 export const getCadastralVerificationCases = () =>
   apiFetch('/api/cadastral/verification-cases')
 

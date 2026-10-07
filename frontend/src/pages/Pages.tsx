@@ -1,4 +1,4 @@
-/* Temporary page registry. UI behavior is intentionally preserved from V1. */
+
 import { useEffect, useMemo, useState } from 'react'
 import {
   Activity, Archive, ArrowRight, BarChart3, Bell, CheckCircle2, ChevronDown,
@@ -344,7 +344,6 @@ function Dashboard({
       uploadSummary = `${files.length} file${files.length === 1 ? '' : 's'} (${imageCount} img${gnssCount ? `, ${gnssCount} GNSS` : ''})`
     }
 
-    // Stage 04 PPK / GNSS
     let ppkStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' = 'NOT_STARTED'
     let ppkSummary = 'No PPK data'
     if (ppkJob?.status === 'COMPLETED') {

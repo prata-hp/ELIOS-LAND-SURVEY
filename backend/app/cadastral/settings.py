@@ -1,9 +1,5 @@
 import os
 
-
-# These are analytical defaults only.
-# They are NOT legal tolerances.
-
 AREA_TOLERANCE_PERCENT = float(
     os.getenv("CADASTRAL_AREA_TOLERANCE_PERCENT", "2.0")
 )

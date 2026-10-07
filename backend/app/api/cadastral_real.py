@@ -39,16 +39,10 @@ from shapely.validation import make_valid
 from shapely.ops import transform, unary_union
 from shapely.strtree import STRtree
 
-
 router = APIRouter(
     prefix="/api/cadastral",
     tags=["Cadastral Comparison"],
 )
-
-
-# ------------------------------------------------------------
-# CONFIGURATION
-# ------------------------------------------------------------
 
 AREA_TOLERANCE_PERCENT = float(
     os.getenv("CADASTRAL_AREA_TOLERANCE_PERCENT", "2.0")
@@ -66,11 +60,6 @@ MATCH_OVERLAP_PERCENT = float(
     os.getenv("CADASTRAL_MATCH_OVERLAP_PERCENT", "20.0")
 )
 
-
-# ------------------------------------------------------------
-# DATABASE
-# ------------------------------------------------------------
-
 def database_url() -> str:
     value = (
         os.getenv("DATABASE_URL")
@@ -87,17 +76,11 @@ def database_url() -> str:
         .replace("+asyncpg", "")
     )
 
-
 def db():
     return psycopg.connect(
         database_url(),
         row_factory=dict_row,
     )
-
-
-# ------------------------------------------------------------
-# UTILITIES
-# ------------------------------------------------------------
 
 def json_safe(value: Any):
     try:
@@ -110,7 +93,6 @@ def json_safe(value: Any):
     except Exception:
         return {}
 
-
 def parse_uuid(value: str | None):
     if not value:
         return None
@@ -122,7 +104,6 @@ def parse_uuid(value: str | None):
             status_code=400,
             detail=f"Invalid UUID: {value}",
         )
-
 
 def choose_local_crs(gdf: gpd.GeoDataFrame) -> str:
     geographic = gdf.to_crs("EPSG:4326")
@@ -143,7 +124,6 @@ def choose_local_crs(gdf: gpd.GeoDataFrame) -> str:
         return f"EPSG:{epsg}"
 
     return "EPSG:6933"
-
 
 def polygonal_geometry(geom):
     if geom is None:
@@ -180,7 +160,6 @@ def polygonal_geometry(geom):
 
     return None
 
-
 def geometry_status(original, normalized):
     if normalized is None:
         return "INVALID"
@@ -189,7 +168,6 @@ def geometry_status(original, normalized):
         return "FIXED"
 
     return "VALID"
-
 
 def boundary_sample_points(geom, count=60):
     boundary = geom.boundary
@@ -228,7 +206,6 @@ def boundary_sample_points(geom, count=60):
 
     return points
 
-
 def boundary_metrics(old_geom, new_geom):
     old_points = boundary_sample_points(old_geom)
     new_boundary = new_geom.boundary
@@ -263,7 +240,6 @@ def boundary_metrics(old_geom, new_geom):
 
     return mean, maximum
 
-
 def projected_geometry(geom, source_crs, target_crs):
     transformer = Transformer.from_crs(
         source_crs,
@@ -275,7 +251,6 @@ def projected_geometry(geom, source_crs, target_crs):
         transformer.transform,
         geom,
     )
-
 
 def geometry_metrics(old_geom, new_geom, projected_crs):
     old_p = projected_geometry(
@@ -343,7 +318,6 @@ def geometry_metrics(old_geom, new_geom, projected_crs):
         "boundary_max_difference": boundary_max,
     }
 
-
 def classify_change(
     metrics,
     split=False,
@@ -381,7 +355,6 @@ def classify_change(
 
     return "REQUIRES_REVIEW"
 
-
 def confidence_score(metrics, direct_id=False):
     overlap = min(
         1.0,
@@ -394,11 +367,6 @@ def confidence_score(metrics, direct_id=False):
     )
 
     return round(min(1.0, value), 4)
-
-
-# ------------------------------------------------------------
-# IMPORT
-# ------------------------------------------------------------
 
 def read_vector_file(path: Path, filename: str):
     suffix = path.suffix.lower()
@@ -450,7 +418,6 @@ def read_vector_file(path: Path, filename: str):
         "Supported formats: GeoJSON, GeoPackage, "
         "Shapefile ZIP."
     )
-
 
 def import_layer(
     file_path: Path,
@@ -757,11 +724,6 @@ def import_layer(
         "parcels": inserted,
     }
 
-
-# ------------------------------------------------------------
-# LAYER API
-# ------------------------------------------------------------
-
 @router.get("/layers")
 def get_layers():
     with db() as conn:
@@ -818,7 +780,6 @@ def get_layers():
             for row in rows
         ]
     }
-
 
 @router.post("/import")
 async def import_cadastral(
@@ -900,11 +861,6 @@ async def import_cadastral(
             ignore_errors=True,
         )
 
-
-# ------------------------------------------------------------
-# PARCEL LOADING
-# ------------------------------------------------------------
-
 def load_parcels(layer_id, layer_type):
     table = (
         "old_parcels"
@@ -949,11 +905,6 @@ def load_parcels(layer_id, layer_type):
         )
 
     return result
-
-
-# ------------------------------------------------------------
-# COMPARISON
-# ------------------------------------------------------------
 
 def run_comparison(
     old_layer_id,
@@ -1479,7 +1430,6 @@ def run_comparison(
         ],
     }
 
-
 @router.post("/compare")
 def compare_cadastral(payload: dict):
     try:
@@ -1518,11 +1468,6 @@ def compare_cadastral(payload: dict):
             status_code=500,
             detail=str(exc),
         )
-
-
-# ------------------------------------------------------------
-# COMPARISON RESULTS
-# ------------------------------------------------------------
 
 @router.get("/comparison/{run_id}")
 def get_comparison(run_id: str):
@@ -1599,11 +1544,6 @@ def get_comparison(run_id: str):
             for row in rows
         ],
     }
-
-
-# ------------------------------------------------------------
-# GEOJSON FOR MAP
-# ------------------------------------------------------------
 
 @router.get("/comparison/{run_id}/geojson")
 def comparison_geojson(run_id: str):
@@ -1811,11 +1751,6 @@ def comparison_geojson(run_id: str):
         "features": features,
     }
 
-
-# ------------------------------------------------------------
-# REPORT GENERATION
-# ------------------------------------------------------------
-
 def generate_report(run_id):
     parsed = parse_uuid(run_id)
 
@@ -1883,10 +1818,6 @@ def generate_report(run_id):
         report_dir
         / f"cadastral_comparison_{parsed}.png"
     )
-
-    # --------------------------------------------------------
-    # MAP
-    # --------------------------------------------------------
 
     old_geometries = []
     new_geometries = []
@@ -1998,10 +1929,6 @@ def generate_report(run_id):
     )
 
     plt.close(fig)
-
-    # --------------------------------------------------------
-    # PDF
-    # --------------------------------------------------------
 
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import A4
@@ -2264,7 +2191,6 @@ def generate_report(run_id):
 
     return pdf_path
 
-
 @router.get("/report/{run_id}")
 def report(run_id: str):
     path = generate_report(run_id)
@@ -2274,11 +2200,6 @@ def report(run_id: str):
         media_type="application/pdf",
         filename=path.name,
     )
-
-
-# ------------------------------------------------------------
-# VERIFICATION
-# ------------------------------------------------------------
 
 @router.post(
     "/comparison/{run_id}/verification"
@@ -2346,7 +2267,6 @@ def create_verification_case(
         "status": "PENDING",
     }
 
-
 @router.get("/verification-cases")
 def get_verification_cases():
     with db() as conn:
@@ -2396,11 +2316,6 @@ def get_verification_cases():
             for row in rows
         ]
     }
-
-
-# ------------------------------------------------------------
-# LEGACY FRONTEND COMPATIBILITY
-# ------------------------------------------------------------
 
 @router.post(
     "/analysis/{parcel_id}/compare"

@@ -2,7 +2,6 @@ import { apiFetch } from './client'
 export const compareParcel = (parcelId: string) => apiFetch(`/analysis/${parcelId}/compare`, {method:'POST'})
 export const getComparison = (parcelId: string) => apiFetch(`/analysis/${parcelId}`)
 
-
 // ============================================================
 // HELIOS-LAND Cadastral Comparison API
 // ============================================================
